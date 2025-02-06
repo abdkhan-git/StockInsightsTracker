@@ -7,19 +7,21 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag trade-like-nancy:$(date +%s)
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Push docker image to private github registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: trade-like-nancy
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        registry: docker.pkg.github.com
-        dockerfile: Dockerfile
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag trade-like-nancy:$(date +%s)
+
+      - name: Push docker image to GHCR
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: trade-like-nancy
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          dockerfile: Dockerfile
+          tags: latest
