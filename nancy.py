@@ -64,24 +64,28 @@ def send_email_notification(trades):
     # Build a subject with only the members present in the new trades.
     notified_members = sorted(set(trade[0] for trade in trades))
     subject = f"New Trade(s) Detected for {', '.join(notified_members)}"
+    
+    # Build the body once using all trade details.
     body = "New trades have been detected:\n\n"
-    recipients = RECIPIENT_EMAIL.split(',')
-
     for trade in trades:
-        # trade[0]: member name, trade[1]: date, trade[2]: document ID
         body += f"Member: {trade[0]}\n"
         body += f"Date: {trade[1].strftime('%Y-%m-%d')}\n"
         body += f"Document ID: {trade[2]}\n"
         body += f"PDF URL: {pdf_file_url}{trade[2]}.pdf\n\n"
 
-    msg = MIMEMultipart()
-    msg['From'] = SENDER_EMAIL
-    msg['Subject'] = subject
-    msg.attach(MIMEText(body, 'plain'))
-
+    # Split recipients and send a separate email for each
+    recipients = RECIPIENT_EMAIL.split(',')
     for recipient in recipients:
+        recipient = recipient.strip()
         print(f"Sending email to {recipient}")
+        
+        # Create a new email message for each recipient
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
         msg['To'] = recipient
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
+        
         server.sendmail(SENDER_EMAIL, recipient, msg.as_string())
         
     print(f"Sent an email notification for {len(trades)} new trades.")
