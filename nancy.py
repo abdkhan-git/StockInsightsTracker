@@ -18,6 +18,7 @@ load_dotenv()
 
 # Email and server configuration from environment variables
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+SENDER_NAME = os.getenv("SENDER_NAME", "admin")  # New: set the sender name
 APP_PASSWORD = os.getenv("APP_PASSWORD")
 RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
 EMAIL_SERVER = os.getenv("EMAIL_SERVER", "smtppro.zoho.com")
@@ -83,7 +84,8 @@ def send_email_notification(trades):
     for recipient in recipients:
         print(f"Sending email to {recipient}")
         msg = MIMEMultipart()
-        msg['From'] = SENDER_EMAIL
+        # Set the From header to include the sender name and email address.
+        msg['From'] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
         msg['To'] = recipient
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'plain'))
