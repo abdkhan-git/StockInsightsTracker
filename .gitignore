@@ -4,3 +4,4 @@
 *.txt
 *.xml
 processed_trades.txt
+.vscode

@@ -13,6 +13,7 @@ current_year = datetime.now().year
 zip_file_url = f"https://disclosures-clerk.house.gov/public_disc/financial-pdfs/{current_year}FD.zip"
 pdf_file_url = f"https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{current_year}/"
 
+# Load environment variables from .env file
 load_dotenv()
 
 # Email and server configuration from environment variables
@@ -26,6 +27,10 @@ EMAIL_PORT = int(os.getenv("EMAIL_PORT", 465))
 # Provide a comma-separated list if you wish to monitor more than one.
 TARGET_MEMBERS = os.getenv("TARGET_MEMBERS", "Pelosi")
 TARGET_MEMBERS = [member.strip() for member in TARGET_MEMBERS.split(",")]
+
+# Set the filename for storing processed trades.
+# This can be set to a persistent volume path in your Docker configuration.
+PROCESSED_TRADES_FILE = os.getenv("PROCESSED_TRADES_FILE", "processed_trades.txt")
 
 # Create the SMTP connection using the configurable email server and port.
 server = smtplib.SMTP_SSL(EMAIL_SERVER, EMAIL_PORT)
@@ -65,7 +70,7 @@ def send_email_notification(trades):
     notified_members = sorted(set(trade[0] for trade in trades))
     subject = f"New Trade(s) Detected for {', '.join(notified_members)}"
     
-    # Build the body once using all trade details.
+    # Build the email body using all trade details.
     body = "New trades have been detected:\n\n"
     for trade in trades:
         body += f"Member: {trade[0]}\n"
@@ -73,49 +78,45 @@ def send_email_notification(trades):
         body += f"Document ID: {trade[2]}\n"
         body += f"PDF URL: {pdf_file_url}{trade[2]}.pdf\n\n"
 
-    # Split recipients and send a separate email for each
-    recipients = RECIPIENT_EMAIL.split(',')
+    # Send a separate email for each recipient to avoid multiple To headers
+    recipients = [recipient.strip() for recipient in RECIPIENT_EMAIL.split(',')]
     for recipient in recipients:
-        recipient = recipient.strip()
         print(f"Sending email to {recipient}")
-        
-        # Create a new email message for each recipient
         msg = MIMEMultipart()
         msg['From'] = SENDER_EMAIL
         msg['To'] = recipient
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'plain'))
-        
         server.sendmail(SENDER_EMAIL, recipient, msg.as_string())
         
     print(f"Sent an email notification for {len(trades)} new trades.")
 
 # --- Persistence functions to track processed trades ---
 
-def load_processed_trades(file_name="processed_trades.txt"):
+def load_processed_trades():
     """
-    Load the set of processed trade document IDs from a file.
+    Load the set of processed trade document IDs from the configured file.
     If the file doesn’t exist, return an empty set.
     """
     processed = set()
-    if os.path.exists(file_name):
-        with open(file_name, "r") as f:
+    if os.path.exists(PROCESSED_TRADES_FILE):
+        with open(PROCESSED_TRADES_FILE, "r") as f:
             for line in f:
                 processed.add(line.strip())
     return processed
 
-def save_processed_trades(new_doc_ids, file_name="processed_trades.txt"):
+def save_processed_trades(new_doc_ids):
     """
-    Append new trade document IDs to the file so they aren’t processed again.
+    Append new trade document IDs to the configured file so they aren’t processed again.
     """
-    with open(file_name, "a") as f:
+    with open(PROCESSED_TRADES_FILE, "a") as f:
         for doc_id in new_doc_ids:
             f.write(doc_id + "\n")
 
 # --- Main loop ---
 
 def main():
-    # Load previously processed trades from file
+    # Load previously processed trades from the persistent storage
     processed_trades = load_processed_trades()
     last_check = datetime.now() - timedelta(minutes=10)
     
@@ -130,7 +131,7 @@ def main():
             
             if new_trades:
                 send_email_notification(new_trades)
-                # Add the new trade document IDs to our processed set and file
+                # Add the new trade document IDs to our processed set and persistent storage
                 new_doc_ids = [trade[2] for trade in new_trades]
                 processed_trades.update(new_doc_ids)
                 save_processed_trades(new_doc_ids)
