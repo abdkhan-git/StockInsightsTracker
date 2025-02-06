@@ -61,8 +61,9 @@ def send_email_notification(trades):
     if not trades:
         return
 
-    # Customize the subject to show which members this notification is for.
-    subject = f"New Trade(s) Detected for {', '.join(TARGET_MEMBERS)}"
+    # Build a subject with only the members present in the new trades.
+    notified_members = sorted(set(trade[0] for trade in trades))
+    subject = f"New Trade(s) Detected for {', '.join(notified_members)}"
     body = "New trades have been detected:\n\n"
     recipients = RECIPIENT_EMAIL.split(',')
 
