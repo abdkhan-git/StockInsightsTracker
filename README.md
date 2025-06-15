@@ -28,7 +28,7 @@ This script downloads financial disclosure data, checks for new trades involving
 ## Features
 
 - Downloads financial disclosure data.
-- Checks for new trades related to Nancy Pelosi.
+- Checks for new trades related to House Members.
 - Sends email notifications with trade details.
 
 ## Prerequisites
@@ -39,71 +39,18 @@ This script downloads financial disclosure data, checks for new trades involving
 ## Installation
 
 1. Clone the repository:
-
-   ```sh
-   git clone https://github.com/your_username/your_repository.git
-   cd your_repository
  
 2. Install the required Python packages:
 pip install -r requirements.txt
 
 ## Configuration
 1. Create a .env file in the project directory and add your email configuration:
-- SENDER_EMAIL = your_sender_email@example.com
-- APP_PASSWORD = your_app_password
-- RECIPIENT_EMAIL=recipient_email@example.com
-
-2. Ensure your .gitignore file includes the .env file to avoid pushing sensitive information to GitHub:
-
-## Usage
-Run the script:
-python your_script.py
-
-# Nancy Pelosi Trades Notifier
-
-This project checks for new financial disclosures related to Nancy Pelosi and sends email notifications when new trades are detected.
-
-## Table of Contents
-
-- [Nancy Pelosi Trades Notifier](#nancy-pelosi-trades-notifier)
-  - [Table of Contents](#table-of-contents)
-  - [Description](#description)
-  - [Features](#features)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
-  - [Usage](#usage)
-  - [License](#license)
-
-## Description
-
-This script downloads financial disclosure data, checks for new trades involving Nancy Pelosi, and sends email notifications with details of the trades.
-
-## Features
-
-- Downloads financial disclosure data.
-- Checks for new trades related to Nancy Pelosi.
-- Sends email notifications with trade details.
-
-## Prerequisites
-
-- Python 3.x
-- Required Python packages listed in `requirements.txt`
-
-## Installation
-
-1. Clone the repository:
-   git clone https://github.com/your_username/your_repository.git
-   cd your_repository
- 
-2. Install the required Python packages:
-pip install -r requirements.txt
-
-## Configuration
-1. Create a .env file in the project directory and add your email configuration:
-- SENDER_EMAIL = your_sender_email@example.com
-- APP_PASSWORD = your_app_password
-- RECIPIENT_EMAIL=recipient_email@example.com
+- SENDER_EMAIL=your_email@example.com
+- APP_PASSWORD=your_app_password
+- RECIPIENT_EMAIL=recipient@example.com,email2@example.com
+- EMAIL_SERVER=your.smtp.server.com
+- EMAIL_PORT=465
+- TARGET_MEMBERS=Pelosi,McCarthy,Schumer
 
 2. Ensure your .gitignore file includes the .env file to avoid pushing sensitive information to GitHub:
 

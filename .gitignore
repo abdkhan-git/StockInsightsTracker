@@ -1,0 +1,7 @@
+/venv
+.env
+*.zip
+*.txt
+*.xml
+processed_trades.txt
+.vscode
